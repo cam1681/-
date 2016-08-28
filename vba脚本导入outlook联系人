@@ -1,0 +1,40 @@
+通过VBA脚本Outlook系列软件在导入vCard(*.vcf)格式的联系人．操作步骤如下：
+1，把所有vCards文件放在一个文件夹内。例如C:\VCARDS 。
+2，打开Outlook2013的VBA编辑器。（ALT + F11 呼出） 。
+3，单击“工具”–>“引用”，勾中“Windows Script Host Object Model ”和“Microsoft Scripting Runtime” 。
+4，单击“插入”–>“模块”，把下列代码粘帖进去。保存。
+5，回到Outlook2013画面，单击“开发工具”––>“宏”––>“找到刚刚添加的宏”（开发工具默认没启用，需在“文件”––>“选项”––>“自定义功能区”找到开发工具勾选上）
+6，运行。
+Sub OpenSaveVCard() 
+Dim objWSHShell As IWshRuntimeLibrary.IWshShell
+Dim objOL As Outlook.Application
+Dim colInsp As Outlook.Inspectors
+Dim strVCName As String
+Dim fso As Scripting.FileSystemObject
+Dim fsDir As Scripting.Folder
+Dim fsFile As Scripting.File
+Dim vCounter As Integer 
+Set fso = New Scripting.FileSystemObject
+Set fsDir = fso.GetFolder("C:\VCARDS") 
+For Each fsFile In fsDir.Files 
+strVCName = "C:\VCARDS\" & fsFile.Name
+Set objOL = CreateObject("Outlook.Application")
+Set colInsp = objOL.Inspectors
+If colInsp.Count = 0 Then
+Set objWSHShell = CreateObject("WScript.Shell")
+objWSHShell.Run Chr(34) & strVCName & Chr(34)
+Set colInsp = objOL.Inspectors
+If Err = 0 Then
+Do Until colInsp.Count = 1
+DoEvents
+Loop
+colInsp.Item(1).CurrentItem.Save
+colInsp.Item(1).Close olDiscard
+Set colInsp = Nothing
+Set objOL = Nothing
+Set objWSHShell = Nothing
+End If
+End If 
+Next 
+End Sub 
+希望能帮到你！祝你成功！
